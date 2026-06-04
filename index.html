@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catatan Kolaborasi Tim — Kewirausahaan Agribisnis Poliwangi</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#185FA5;--blue-lt:#E6F1FB;
+  --navy:#1F3864;
+  --green:#1A7A50;--green-lt:#E2EFDA;--green-dk:#134D33;
+  --amber:#BA7517;--amber-lt:#FFF8E1;
+  --red:#A32D2D;--red-lt:#FEF2F2;
+  --teal:#0E7490;--teal-lt:#CFFAFE;
+  --text:#1a1a1a;--muted:#666;--bg:#f0f2f5;
+  --card:#fff;--border:#dde1e7;--border2:#bcc2cc;
+  --stripe:#F8FAF9;
+}
+@media(prefers-color-scheme:dark){
+  :root{--text:#e4e4e4;--muted:#999;--bg:#111;--card:#1e1e1e;
+    --border:#333;--border2:#555;--blue-lt:#0c2a4a;
+    --green-lt:#0d2e1a;--amber-lt:#2a1a00;--teal-lt:#0a2a2e;
+    --stripe:#1a2820;}
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;
+  min-height:100vh;padding:16px}
+.wrap{max-width:680px;margin:0 auto}
+
+/* HEADER */
+.hdr{background:var(--green-dk);border-radius:10px 10px 0 0;padding:20px 24px 16px;color:#fff}
+.hdr h1{font-size:19px;font-weight:600;margin-bottom:4px}
+.hdr p{font-size:12.5px;opacity:.82}
+.badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);
+  color:#fff;font-size:11px;font-weight:600;padding:3px 10px;
+  border-radius:20px;margin-bottom:10px}
+
+.prog-track{height:4px;background:#A7D7B8}
+.prog-fill{height:4px;background:#fff;transition:width .4s}
+
+.dots{display:flex;gap:7px;padding:10px 0 4px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--border2);transition:all .2s}
+.dot.active{background:var(--green);transform:scale(1.2)}
+.dot.done{background:var(--teal)}
+
+.sec-head{background:var(--green-lt);border-left:4px solid var(--green);
+  padding:9px 14px;border-radius:0 6px 6px 0;
+  font-size:13px;font-weight:600;color:var(--green-dk);margin:12px 0 8px}
+
+.card{background:var(--card);border-radius:8px;border:1px solid var(--border);
+  padding:16px 18px;margin-bottom:10px}
+
+.ql{font-size:14px;font-weight:500;color:var(--text);margin-bottom:7px;line-height:1.5}
+.qh{font-size:12px;color:var(--muted);margin-bottom:9px;font-style:italic;line-height:1.5}
+.req{color:#c0392b}
+
+input[type=text],input[type=number],select,textarea{
+  width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;
+  font-size:14px;font-family:inherit;background:var(--card);color:var(--text);transition:border-color .2s}
+input:focus,select:focus,textarea:focus{
+  outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(26,122,80,.12)}
+textarea{resize:vertical;min-height:76px}
+input[type=range]{width:100%;accent-color:var(--green);margin:6px 0}
+input[type=radio],input[type=checkbox]{accent-color:var(--green);flex-shrink:0}
+
+.kelas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.kelas-btn{border:1px solid var(--border2);border-radius:7px;padding:11px 0;
+  text-align:center;cursor:pointer;font-size:15px;font-weight:600;
+  background:var(--card);color:var(--text);transition:all .2s;user-select:none}
+.kelas-btn.sel{background:var(--green);color:#fff;border-color:var(--green)}
+
+.nama-row{display:grid;grid-template-columns:148px 1fr;gap:8px;align-items:center;margin-bottom:8px}
+.nama-label{font-size:13px;color:var(--muted);font-weight:500}
+.nama-self{color:var(--green-dk);font-weight:600}
+
+.rrow,.crow{display:flex;align-items:flex-start;gap:10px;
+  padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.5}
+.rrow:last-child,.crow:last-child{border-bottom:none}
+.rrow input,.crow input{margin-top:3px}
+label{cursor:pointer;display:flex;align-items:flex-start;gap:10px;width:100%}
+
+.scale-val{text-align:center;font-size:24px;font-weight:700;color:var(--green);padding:4px 0}
+.scale-ends{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:1px}
+
+/* ═══════════════════════════════════
+   MATRIX DISTRIBUSI — inti form ini
+═══════════════════════════════════ */
+.matrix-outer{overflow-x:auto;-webkit-overflow-scrolling:touch;
+  border-radius:6px;border:1px solid var(--border);margin-top:4px}
+.matrix-tbl{border-collapse:collapse;width:100%;min-width:480px}
+.matrix-tbl th,.matrix-tbl td{
+  padding:8px 10px;border-bottom:1px solid var(--border);
+  border-right:1px solid var(--border);font-size:12.5px;vertical-align:middle}
+.matrix-tbl th:last-child,.matrix-tbl td:last-child{border-right:none}
+/* Sticky first col */
+.col-fix{position:sticky;left:0;z-index:2;background:var(--card);
+  min-width:148px;max-width:160px}
+.matrix-tbl thead .col-fix{background:var(--green-dk)}
+/* Header row */
+.matrix-tbl thead th{background:var(--green-dk);color:#fff;
+  font-weight:600;text-align:center;white-space:nowrap}
+.matrix-tbl thead .col-fix{text-align:left;padding-left:12px}
+/* Total col */
+.matrix-tbl tbody tr{transition:background .15s}
+.matrix-tbl tbody tr:nth-child(odd){background:var(--stripe)}
+.matrix-tbl tbody tr:hover{background:var(--green-lt)}
+.p-label{font-weight:700;font-size:13px;color:var(--text)}
+.p-desc{font-size:11px;color:var(--muted);margin-top:1px}
+.p-mg{font-size:10px;color:var(--muted);margin-top:1px;
+  background:var(--border);display:inline-block;
+  padding:1px 6px;border-radius:10px}
+/* Number inputs inside matrix */
+.mx-input{width:58px;text-align:center;border:1px solid var(--border);
+  border-radius:5px;padding:5px 3px;font-size:14px;font-weight:700;
+  background:var(--card);color:var(--text);transition:border-color .15s}
+.mx-input:focus{outline:none;border-color:var(--green);
+  box-shadow:0 0 0 2px rgba(26,122,80,.15)}
+/* Total col */
+.col-tot{text-align:center;font-weight:700;min-width:58px;font-size:13px}
+.col-tot.ok{color:var(--green)}
+.col-tot.bad{color:var(--red)}
+/* Weighted total footer row */
+/* Status bar bawah matrix */
+.matrix-status{display:flex;align-items:center;gap:8px;
+  padding:8px 12px;background:var(--border);border-radius:0 0 6px 6px;
+  font-size:12px;color:var(--muted)}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.status-dot.ok{background:var(--green)}
+.status-dot.bad{background:var(--red)}
+
+/* Info boxes */
+.info{background:var(--blue-lt);border-left:4px solid var(--blue);
+  padding:10px 14px;border-radius:0 6px 6px 0;
+  font-size:13px;color:#0C447C;margin-bottom:12px;line-height:1.6}
+.tip{background:var(--teal-lt);border-left:4px solid var(--teal);
+  padding:10px 14px;border-radius:0 6px 6px 0;
+  font-size:13px;color:#0c4a5e;margin-bottom:12px;line-height:1.6}
+.green-box{background:var(--green-lt);border-left:4px solid var(--green);
+  padding:10px 14px;border-radius:0 6px 6px 0;
+  font-size:13px;color:var(--green-dk);margin-bottom:12px;line-height:1.6}
+.sub{background:var(--bg);border:1px solid var(--border);
+  border-radius:6px;padding:12px 14px;margin-top:10px}
+
+/* Tombol */
+.navrow{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:10px}
+.btn{padding:9px 20px;border-radius:6px;font-size:13px;font-weight:500;
+  cursor:pointer;border:1px solid var(--border2);
+  background:var(--card);color:var(--text);transition:all .15s}
+.btn:hover{opacity:.85}
+.btn-p{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-s{background:var(--teal);color:#fff;border-color:var(--teal)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* Chip suasana */
+.chip-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{padding:6px 14px;border-radius:20px;border:1px solid var(--border2);
+  background:var(--card);font-size:12px;cursor:pointer;transition:all .2s;user-select:none}
+.chip.sel{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* Success */
+.success{text-align:center;padding:48px 20px}
+.sicon{font-size:60px;margin-bottom:16px}
+.success h2{font-size:20px;font-weight:600;margin-bottom:10px;color:var(--green)}
+.success p{color:var(--muted);font-size:13.5px;line-height:1.7;max-width:380px;margin:0 auto}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;
+  vertical-align:-2px;margin-right:6px}
+.hidden{display:none!important}
+.err-field{border-color:#c0392b!important;box-shadow:0 0 0 3px rgba(192,57,43,.12)!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hdr">
+  <div class="badge">📋 Catatan berkembang · Hanya dosen yang melihat</div>
+  <h1>Catatan Kolaborasi Tim</h1>
+  <p>Kewirausahaan Agribisnis &nbsp;·&nbsp; D-IV Agribisnis &nbsp;·&nbsp; Poliwangi &nbsp;·&nbsp; TA 2025/2026</p>
+</div>
+<div class="prog-track"><div class="prog-fill" id="prog" style="width:25%"></div></div>
+
+<div style="padding-top:8px">
+<div class="dots" id="dots"></div>
+
+<!-- ══════════════════════════════════
+     SEC 0 — IDENTITAS
+══════════════════════════════════ -->
+<div id="sec0">
+  <div class="green-box">
+    <strong>Tujuan form ini:</strong> Membantu dosen memahami kondisi dan dinamika tim secara menyeluruh — bukan untuk menghakimi siapapun, tapi agar setiap anggota mendapat dukungan yang tepat. Jawablah berdasarkan fakta yang kamu amati.
+  </div>
+  <div class="sec-head">Bagian 1 dari 4 &nbsp;·&nbsp; Identifikasi Tim</div>
+
+  <div class="card">
+    <div class="ql">Kelasmu <span class="req">*</span></div>
+    <div class="kelas-grid">
+      <div class="kelas-btn" id="btn1C" onclick="pilihKelas('1C')">1C</div>
+      <div class="kelas-btn" id="btn1D" onclick="pilihKelas('1D')">1D</div>
+      <div class="kelas-btn" id="btn1E" onclick="pilihKelas('1E')">1E</div>
+    </div>
+    <input type="hidden" id="kelas">
+  </div>
+
+  <div class="card">
+    <div class="ql">Nama produk / usaha kelompokmu <span class="req">*</span></div>
+    <div class="qh">Ketik nama produk yang kalian buat — untuk mengidentifikasi kelompokmu</div>
+    <input type="text" id="produk" placeholder="contoh: Keripik Tempe Herbal, Sambal Dabu-dabu…">
+  </div>
+
+  <div class="card">
+    <div class="ql">Jumlah anggota aktif di kelompokmu <span class="req">*</span></div>
+    <div class="qh">Tidak termasuk anggota yang sudah tidak pernah aktif</div>
+    <div class="rrow"><label><input type="radio" name="jml" value="4" onchange="pilihJumlah(4)"> 4 orang</label></div>
+    <div class="rrow"><label><input type="radio" name="jml" value="5" onchange="pilihJumlah(5)"> 5 orang</label></div>
+    <div class="rrow"><label><input type="radio" name="jml" value="6" onchange="pilihJumlah(6)"> 6 orang</label></div>
+    <div class="rrow"><label><input type="radio" name="jml" value="7" onchange="pilihJumlah(7)"> 7 orang</label></div>
+  </div>
+
+  <div class="card hidden" id="card_nama">
+    <div class="ql">Nama lengkap semua anggota <span class="req">*</span></div>
+    <div class="qh">Dimulai dari <strong>namamu sendiri</strong>. Hanya dosen yang melihat — identitasmu sebagai pengisi tidak tersimpan.</div>
+    <div id="nama_inputs" style="margin-top:6px"></div>
+  </div>
+
+  <div class="navrow"><span></span>
+    <button class="btn btn-p" onclick="dari0()">Lanjut &rarr;</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SEC 1 — REFLEKSI DIRI
+══════════════════════════════════ -->
+<div id="sec1" class="hidden">
+  <div class="sec-head">Bagian 2 dari 4 &nbsp;·&nbsp; Refleksi Diri &amp; Tim</div>
+
+  <div class="card">
+    <div class="ql">✅ Apa yang berjalan paling baik dalam kerja tim kalian sepanjang semester ini?</div>
+    <div class="qh">Ceritakan satu atau dua momen atau aspek yang berhasil — mulai dari hal positif</div>
+    <textarea id="hal_baik" placeholder="Misalnya: komunikasi tim sangat lancar, semua hadir konsisten, pembagian kerja merata…"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="ql">Dari skala 1–10, seberapa besar kontribusimu secara keseluruhan sepanjang semester?</div>
+    <div class="qh">1 = sangat sedikit &nbsp;·&nbsp; 10 = sangat besar, terlibat di hampir semua penugasan</div>
+    <input type="range" min="1" max="10" value="6" id="skor_diri"
+      oninput="document.getElementById('sv').textContent=this.value">
+    <div class="scale-val" id="sv">6</div>
+    <div class="scale-ends"><span>1 — Sangat sedikit</span><span>10 — Sangat besar</span></div>
+  </div>
+
+  <div class="card">
+    <div class="ql">Bagian kerja yang paling banyak kamu tangani? <small style="font-weight:400;color:var(--muted)">(pilih semua yang sesuai)</small></div>
+    <div class="crow"><label><input type="checkbox" class="bag" value="Produksi / operasional"> Produksi / operasional</label></div>
+    <div class="crow"><label><input type="checkbox" class="bag" value="Keuangan & pembukuan"> Keuangan &amp; pembukuan</label></div>
+    <div class="crow"><label><input type="checkbox" class="bag" value="Pemasaran & penjualan"> Pemasaran &amp; penjualan</label></div>
+    <div class="crow"><label><input type="checkbox" class="bag" value="Penyusunan laporan"> Penyusunan laporan</label></div>
+    <div class="crow"><label><input type="checkbox" class="bag" value="Survei & riset pasar"> Survei &amp; riset pasar</label></div>
+    <div class="crow"><label><input type="checkbox" class="bag" value="Koordinasi & komunikasi tim"> Koordinasi &amp; komunikasi tim</label></div>
+    <div class="crow"><label><input type="checkbox" class="bag" value="Desain slide & presentasi"> Desain slide &amp; presentasi</label></div>
+  </div>
+
+  <div class="card">
+    <div class="ql">Ada hambatan yang membuatmu tidak bisa berkontribusi semaksimal yang kamu inginkan? <small style="font-weight:400;color:var(--muted)">(opsional)</small></div>
+    <div class="qh">Tidak mempengaruhi nilaimu. Hanya untuk pemahaman dosen.</div>
+    <textarea id="hambatan" placeholder="Tulis jika ada…"></textarea>
+  </div>
+
+  <div class="navrow">
+    <button class="btn" onclick="ke(0)">&larr; Kembali</button>
+    <button class="btn btn-p" onclick="ke(2)">Lanjut &rarr;</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SEC 2 — MATRIX DISTRIBUSI (INTI)
+══════════════════════════════════ -->
+<div id="sec2" class="hidden">
+  <div class="sec-head">Bagian 3 dari 4 &nbsp;·&nbsp; Apresiasi Kontribusi per Penugasan</div>
+
+  <div class="tip">
+    <strong>Cara mengisi:</strong> Untuk setiap penugasan, tuliskan kontribusi masing-masing anggota dalam persen — total tiap baris harus tepat <strong>100</strong>. Tidak ada jawaban benar/salah, yang penting mencerminkan kontribusi aktual di penugasan tersebut.
+  </div>
+
+  <div class="card" style="padding:14px 14px 0">
+    <div class="ql">Distribusi poin apresiasi — semua penugasan semester ini</div>
+    <div class="qh" id="matrix_hint">Kolom sesuai nama anggota yang kamu isi di Bagian 1.</div>
+
+    <!-- STATUS ROW -->
+    <div id="matrix_status_bar" class="matrix-status" style="margin:8px 0 4px;border-radius:6px">
+      <div class="status-dot bad" id="status_dot"></div>
+      <span id="status_txt">Isi semua baris hingga tiap baris berjumlah 100</span>
+    </div>
+
+    <!-- TABLE -->
+    <div class="matrix-outer">
+      <table class="matrix-tbl" id="matrix_tbl">
+        <thead id="matrix_head"></thead>
+        <tbody id="matrix_body"></tbody>
+        <tfoot id="matrix_foot"></tfoot>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="navrow">
+    <button class="btn" onclick="ke(1)">&larr; Kembali</button>
+    <button class="btn btn-p" onclick="dari2()">Lanjut &rarr;</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SEC 3 — KONDISI TIM & PENUTUP
+══════════════════════════════════ -->
+<div id="sec3" class="hidden">
+  <div class="sec-head">Bagian 4 dari 4 &nbsp;·&nbsp; Kondisi Tim &amp; Pesan</div>
+
+  <div class="card">
+    <div class="ql">Secara keseluruhan, bagaimana tingkat keterlibatan semua anggota sepanjang semester?</div>
+    <div class="rrow"><label><input type="radio" name="had"> Semua terlibat aktif dan konsisten</label></div>
+    <div class="rrow"><label><input type="radio" name="had"> Sebagian besar aktif; ada ketidakhadiran sesekali tapi tidak mengganggu</label></div>
+    <div class="rrow"><label><input type="radio" name="had"> Ada 1 anggota yang keterlibatannya sangat minim tanpa kabar jelas</label></div>
+    <div class="rrow"><label><input type="radio" name="had"> Lebih dari 1 anggota keterlibatannya sangat rendah</label></div>
+  </div>
+
+  <div class="card">
+    <div class="ql">Apakah ada anggota yang menurutmu membutuhkan <em>dukungan lebih</em> dari dosen agar bisa berkontribusi lebih optimal?</div>
+    <div class="qh">Ini bukan penilaian buruk — informasi ini membantu dosen memberikan perhatian yang tepat kepada mahasiswa yang mungkin menghadapi kendala.</div>
+    <div class="rrow"><label><input type="radio" name="ada_kurang" value="Tidak" onchange="toggleDetail(false)">
+      Tidak — semua sudah berkontribusi optimal sesuai kemampuan masing-masing</label></div>
+    <div class="rrow"><label><input type="radio" name="ada_kurang" value="Ya" onchange="toggleDetail(true)">
+      Ya — ada anggota yang sepertinya perlu dukungan atau pendekatan berbeda dari dosen</label></div>
+    <div id="detail_kurang" class="sub hidden">
+      <div class="ql" style="font-size:13px;margin-bottom:8px">Situasi yang kamu amati <small style="font-weight:400;color:var(--muted)">(pilih yang sesuai)</small></div>
+      <div class="crow" style="padding:5px 0"><label><input type="checkbox" class="kk" value="Jarang hadir pertemuan tim tanpa kabar"> Jarang hadir pertemuan tim tanpa kabar</label></div>
+      <div class="crow" style="padding:5px 0"><label><input type="checkbox" class="kk" value="Bagian tugas yang disepakati tidak terselesaikan"> Bagian tugas yang disepakati tidak terselesaikan</label></div>
+      <div class="crow" style="padding:5px 0"><label><input type="checkbox" class="kk" value="Sulit dihubungi / respons sangat lambat"> Sulit dihubungi / respons sangat lambat</label></div>
+      <div class="crow" style="padding:5px 0"><label><input type="checkbox" class="kk" value="Hadir tapi tidak aktif berpartisipasi"> Hadir tapi tidak aktif berpartisipasi</label></div>
+      <div class="crow" style="padding:5px 0"><label><input type="checkbox" class="kk" value="Menghadapi kendala di luar kampus"> Sepertinya menghadapi kendala di luar kampus</label></div>
+      <div class="crow" style="padding:5px 0"><label><input type="checkbox" class="kk" value="Pemahaman materi perlu diperkuat"> Pemahaman materi yang perlu diperkuat</label></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ql">🌟 Anggota timmu yang ingin kamu apresiasi kontribusinya? <small style="font-weight:400;color:var(--muted)">(opsional)</small></div>
+    <textarea id="apresiasi" placeholder="Boleh sebut nama dan apa yang mereka lakukan yang berkesan bagimu…"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="ql">Satu hal yang paling ingin kamu ubah jika mengulang proyek ini dari awal?</div>
+    <textarea id="saran_tim" placeholder="Fokus pada sistem kerja tim, bukan individu tertentu…"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="ql">Bagaimana suasana tim kalian secara keseluruhan sepanjang semester?</div>
+    <div class="chip-wrap" id="suasana_chips">
+      <div class="chip" onclick="pilihChip(this)">🔥 Sangat bersemangat</div>
+      <div class="chip" onclick="pilihChip(this)">😊 Positif dan kooperatif</div>
+      <div class="chip" onclick="pilihChip(this)">😐 Biasa-biasa saja</div>
+      <div class="chip" onclick="pilihChip(this)">😓 Agak tertekan</div>
+      <div class="chip" onclick="pilihChip(this)">😔 Banyak ketegangan</div>
+    </div>
+    <input type="hidden" id="suasana">
+  </div>
+
+  <div class="card">
+    <div class="ql">Ada hal lain yang ingin kamu sampaikan ke dosen? <small style="font-weight:400;color:var(--muted)">(opsional)</small></div>
+    <textarea id="pesan_lain" placeholder="Ruang terbuka untuk apapun yang ingin kamu ungkapkan…"></textarea>
+  </div>
+
+  <div class="navrow">
+    <button class="btn" onclick="ke(2)">&larr; Kembali</button>
+    <button class="btn btn-s" id="kirim_btn" onclick="kirim()">Kirim Catatan &nbsp;✓</button>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div id="sukses" class="hidden">
+  <div class="card success">
+    <div class="sicon">🌱</div>
+    <h2>Catatan berhasil dikirim!</h2>
+    <p>Terima kasih sudah meluangkan waktu untuk berefleksi secara menyeluruh. Catatanmu membantu dosen memahami kondisi tiap anggota tim dengan lebih baik.</p>
+    <p style="margin-top:12px;font-size:12px;color:var(--muted)">Halaman ini bisa kamu tutup.</p>
+  </div>
+</div>
+<div id="err_fallback" class="hidden">
+  <div class="card" style="border-color:#c0392b">
+    <div class="ql" style="color:#c0392b">⚠ Gagal mengirim</div>
+    <p style="font-size:13px;color:var(--muted);margin:8px 0">Screenshot data di bawah dan kirim ke dosen:</p>
+    <textarea id="fallback_data" style="font-size:11px;font-family:monospace" rows="10" readonly></textarea>
+  </div>
+</div>
+
+</div><!-- /padding -->
+</div><!-- /wrap -->
+
+<script>
+// ══════════════════════════════════════════════════════════════════
+// KONFIGURASI
+// ══════════════════════════════════════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhn8pmLO5UeN4KPnnNOhcB6VcYNXKxOPimrUBoCKLUH_EdmWXO0q6RoHOsQ6uQi55beQ/exec';
+
+// ── PENUGASAN + BOBOT ─────────────────────────────────────────────
+// !! Sesuaikan bobot (%) dengan silabus — total harus 100
+const PENUGASAN = [
+  { id:'tf1', label:'Tugas Fase 1',    desc:'Validasi Peluang Usaha',                  mg:'Mg 3',  bobot:10 },
+  { id:'tf2', label:'Tugas Fase 2',    desc:'Studi Kelayakan Teknis & Finansial',      mg:'Mg 7',  bobot:15 },
+  { id:'tf3', label:'Tugas Fase 3',    desc:'Laporan Akhir Proyek',                    mg:'Mg 14', bobot:20 },
+  { id:'p1',  label:'Praktikum P1',    desc:'Perancangan Teknis & Trial Awal',         mg:'Mg 4',  bobot:10 },
+  { id:'p2',  label:'Praktikum P2',    desc:'Kelayakan Awal Berbasis Biaya Aktual',    mg:'Mg 5',  bobot:10 },
+  { id:'p3',  label:'Praktikum P3',    desc:'Prototipe v1',                            mg:'Mg 9',  bobot:10 },
+  { id:'p4',  label:'Praktikum P4',    desc:'SOP & Prototipe v2',                      mg:'Mg 10', bobot:10 },
+  { id:'p5',  label:'Praktikum P5',    desc:'Implementasi Lapangan',                   mg:'Mg 12', bobot:15 },
+];
+// Total bobot: 10+15+20+10+10+10+10+15 = 100 ✓
+
+// ══════════════════════════════════════════════════════════════════
+// STATE & NAV
+// ══════════════════════════════════════════════════════════════════
+let cur = 0, jml = 0;
+const SECS  = ['sec0','sec1','sec2','sec3'];
+const LABELS = ['Identifikasi','Refleksi diri','Distribusi poin','Penutup'];
+
+const dotsEl = document.getElementById('dots');
+SECS.forEach((_,i) => {
+  const d = document.createElement('div');
+  d.className = 'dot'+(i===0?' active':'');
+  d.title = LABELS[i];
+  dotsEl.appendChild(d);
+});
+
+function updateDots(){
+  document.querySelectorAll('.dot').forEach((d,i)=>
+    d.className='dot'+(i<cur?' done':i===cur?' active':''));
+}
+function ke(n){
+  document.getElementById(SECS[cur]).classList.add('hidden');
+  cur=n;
+  if(n===2) buatMatrix();
+  document.getElementById(SECS[cur]).classList.remove('hidden');
+  document.getElementById('prog').style.width=((cur+1)/SECS.length*100)+'%';
+  updateDots();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SEC 0 — IDENTITAS
+// ══════════════════════════════════════════════════════════════════
+function pilihKelas(k){
+  document.getElementById('kelas').value=k;
+  ['1C','1D','1E'].forEach(x=>
+    document.getElementById('btn'+x).classList.toggle('sel',x===k));
+}
+function pilihJumlah(n){ jml=n; buatInputNama(n); }
+
+function buatInputNama(n){
+  const wrap=document.getElementById('nama_inputs');
+  wrap.innerHTML='';
+  for(let i=0;i<n;i++){
+    const row=document.createElement('div');
+    row.className='nama-row';
+    row.innerHTML=`
+      <div class="nama-label${i===0?' nama-self':''}">
+        ${i===0?'👤 Namamu sendiri':'Anggota ke-'+(i+1)}
+      </div>
+      <input type="text" id="nama${i}"
+        placeholder="${i===0?'Nama lengkapmu':'Nama anggota '+(i+1)}"
+        oninput="this.classList.remove('err-field')">`;
+    wrap.appendChild(row);
+  }
+  document.getElementById('card_nama').classList.remove('hidden');
+}
+
+function dari0(){
+  if(!document.getElementById('kelas').value){alert('Pilih kelasmu dulu!');return;}
+  const pEl=document.getElementById('produk');
+  if(!pEl.value.trim()){pEl.classList.add('err-field');pEl.focus();alert('Ketik nama produk kelompokmu!');return;}
+  pEl.classList.remove('err-field');
+  if(!jml){alert('Pilih jumlah anggota kelompokmu!');return;}
+  for(let i=0;i<jml;i++){
+    const el=document.getElementById('nama'+i);
+    if(!el||!el.value.trim()){
+      el.classList.add('err-field');el.focus();
+      alert(i===0?'Isi namamu sendiri dulu!':'Isi nama anggota ke-'+(i+1)+'!');return;
+    }
+  }
+  ke(1);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SEC 2 — MATRIX BUILDER
+// ══════════════════════════════════════════════════════════════════
+function getNama(i){ return document.getElementById('nama'+i)?.value.trim()||(i===0?'Kamu':'Anggota '+(i+1)); }
+
+function buatMatrix(){
+  // Hint text
+  document.getElementById('matrix_hint').textContent =
+    `Kelompok "${document.getElementById('produk')?.value||''}" — ${jml} anggota. Setiap baris harus tepat 100.`;
+
+  // ── HEADER
+  const thead = document.getElementById('matrix_head');
+  let hRow = '<tr><th class="col-fix">Penugasan</th>';
+  for(let i=0;i<jml;i++){
+    const nm = getNama(i);
+    hRow += `<th>${nm}${i===0?'<br><small style="font-weight:400;opacity:.75">(kamu)</small>':''}</th>`;
+  }
+  hRow += '<th>Total</th></tr>';
+  thead.innerHTML = hRow;
+
+  // ── BODY
+  const tbody = document.getElementById('matrix_body');
+  const base = Math.floor(100/jml);
+  const extra = 100 - base*jml;
+  let bRows = '';
+  PENUGASAN.forEach(p=>{
+    bRows += `<tr>
+      <td class="col-fix">
+        <div class="p-label">${p.label}</div>
+        <div class="p-desc">${p.desc}</div>
+        <span class="p-mg">${p.mg}</span>
+      </td>`;
+    for(let i=0;i<jml;i++){
+      const def = i===0 ? base+extra : base;
+      bRows += `<td style="text-align:center">
+        <input type="number" class="mx-input" id="${p.id}_${i}"
+          min="0" max="100" value="${def}" oninput="hitungBaris('${p.id}')">
+      </td>`;
+    }
+    bRows += `<td class="col-tot ok" id="tot_${p.id}">100 ✓</td></tr>`;
+  });
+  tbody.innerHTML = bRows;
+
+  document.getElementById('matrix_foot').innerHTML = '';
+  updateStatusBar();
+}
+
+function hitungBaris(pid){
+  let sum=0;
+  for(let i=0;i<jml;i++){
+    const el=document.getElementById(pid+'_'+i);
+    sum+=parseInt(el?.value)||0;
+  }
+  const tEl=document.getElementById('tot_'+pid);
+  tEl.textContent = sum===100?'100 ✓':sum+' ⚠';
+  tEl.className = 'col-tot '+(sum===100?'ok':'bad');
+  updateStatusBar();
+}
+
+function updateStatusBar(){
+  let allOk=true, doneCount=0;
+  PENUGASAN.forEach(p=>{
+    let sum=0;
+    for(let i=0;i<jml;i++) sum+=parseInt(document.getElementById(p.id+'_'+i)?.value)||0;
+    if(sum===100) doneCount++;
+    else allOk=false;
+  });
+  const dot=document.getElementById('status_dot');
+  const txt=document.getElementById('status_txt');
+  dot.className='status-dot '+(allOk?'ok':'bad');
+  txt.textContent=allOk
+    ?'✓ Semua '+PENUGASAN.length+' penugasan sudah terisi lengkap'
+    :'Sudah '+doneCount+' dari '+PENUGASAN.length+' penugasan — tiap baris harus tepat 100';
+}
+
+function dari2(){
+  for(const p of PENUGASAN){
+    let sum=0;
+    for(let i=0;i<jml;i++) sum+=parseInt(document.getElementById(p.id+'_'+i)?.value)||0;
+    if(sum!==100){
+      alert(`Baris "${p.label}" belum tepat 100 (sekarang: ${sum}).\nSesuaikan dulu sebelum lanjut.`);
+      document.getElementById(p.id+'_0')?.scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+  }
+  ke(3);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SEC 3 — KONDISI TIM
+// ══════════════════════════════════════════════════════════════════
+function toggleDetail(show){
+  document.getElementById('detail_kurang').classList.toggle('hidden',!show);
+}
+function pilihChip(el){
+  document.querySelectorAll('#suasana_chips .chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('suasana').value=el.textContent.trim();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SUBMIT
+// ══════════════════════════════════════════════════════════════════
+function kirim(){
+  const btn=document.getElementById('kirim_btn');
+
+  // Nama anggota
+  const namaArr=[];
+  for(let i=0;i<jml;i++) namaArr.push(document.getElementById('nama'+i)?.value.trim()||'');
+
+  // Matrix data — semua sel
+  const matrixData={};
+  PENUGASAN.forEach(p=>{
+    for(let i=0;i<jml;i++){
+      const v=parseInt(document.getElementById(p.id+'_'+i)?.value)||0;
+      matrixData[p.id+'_'+i]=v;
+    }
+  });
+
+  // Other fields
+  const bagian=[...document.querySelectorAll('.bag:checked')].map(c=>c.value);
+  const hadirEl=document.querySelector('input[name=had]:checked');
+  const kurangEl=document.querySelector('input[name=ada_kurang]:checked');
+  const bentuk=[...document.querySelectorAll('.kk:checked')].map(c=>c.value);
+  const txt=el=>el?.closest('label')?.textContent.trim()||el?.value||'';
+
+  const payload={
+    timestamp    : new Date().toISOString(),
+    kelas        : document.getElementById('kelas').value,
+    produk       : document.getElementById('produk').value.trim(),
+    jumlahAnggota: jml,
+    nama0:namaArr[0]||'', nama1:namaArr[1]||'', nama2:namaArr[2]||'',
+    nama3:namaArr[3]||'', nama4:namaArr[4]||'', nama5:namaArr[5]||'', nama6:namaArr[6]||'',
+    // Matrix raw (semua sel)
+    ...matrixData,
+    // Refleksi
+    halBaik      : document.getElementById('hal_baik').value,
+    skorDiri     : document.getElementById('skor_diri').value,
+    bagianKerja  : bagian.join(' | '),
+    hambatan     : document.getElementById('hambatan').value,
+    // Kondisi
+    kehadiran    : txt(hadirEl),
+    adaYangPerluDukungan: kurangEl?.value||'',
+    situasiDiamati: bentuk.join(' | '),
+    apresiasi    : document.getElementById('apresiasi').value,
+    saranTim     : document.getElementById('saran_tim').value,
+    suasanaTim   : document.getElementById('suasana').value,
+    pesanLain    : document.getElementById('pesan_lain').value,
+  };
+
+  btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span> Mengirim…';
+
+  const fd=new FormData();
+  fd.append('data',JSON.stringify(payload));
+
+  fetch(SCRIPT_URL,{method:'POST',body:fd,mode:'no-cors'})
+    .then(()=>{
+      SECS.forEach(id=>document.getElementById(id).classList.add('hidden'));
+      document.getElementById('sukses').classList.remove('hidden');
+      document.getElementById('prog').style.width='100%';
+      document.querySelectorAll('.dot').forEach(d=>d.className='dot done');
+      window.scrollTo({top:0,behavior:'smooth'});
+    })
+    .catch(()=>{
+      btn.disabled=false;
+      btn.innerHTML='Kirim Catatan ✓';
+      document.getElementById('err_fallback').classList.remove('hidden');
+      document.getElementById('fallback_data').value=JSON.stringify(payload,null,2);
+      window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+    });
+}
+</script>
+</body>
+</html>
